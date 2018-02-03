@@ -1,0 +1,59 @@
+; Begging 1.0 for ZuluHotel Omega.
+;
+; 1. Stand next to an NPC, make sure you have line of sight.
+; 2. Start the script, target the NPC when asked.
+; 3. ???
+; 4. Profit
+;
+; Additionally, This has a small check to restart begging after a world save,
+; in case the save hangs the script.  I also run this in tandem with a Razor
+; macro that spams LastTarget because there are times when the target "hangs"
+; outside of world saves for a reason unknown to me.
+
+
+event SysMessage Please target the unfortunate npc.
+
+set #TARGCURS 1
+while #TARGCURS = 1
+  wait 2
+
+gosub beg
+
+start:
+
+gosub journal_has gold_coins
+if #result = #true
+  gosub beg
+
+gosub journal_has look_like_a_bank
+if #result = #true
+  gosub beg
+
+gosub journal_has receive_nothing
+if #result = #true
+  gosub beg
+
+gosub journal_has world_saved
+if #result = #true
+{
+  event SysMessage Arbitrary failsafe for world saves.
+  gosub beg
+}
+
+goto start
+
+sub beg
+  event SysMessage Begging will commence.
+  event macro 13 6
+  wait 1s
+  event macro 22 0
+
+sub journal_has ; %passage %start %end
+  for %i %journal_s %journal_e
+  {
+    scanjournal %i
+
+    if %1 in #journal
+      return #true
+  }
+  return #false

@@ -1,0 +1,94 @@
+; Bowcraft 1.0 for ZuluHotel Omega
+;
+; 1. Make sure you have a separate bag containing a lot of shafts and feathers
+;    in your bank.
+; 2. Start the script, wait until the necessary containers are open and target
+;    the bag container the shafts and feathers.
+;
+; This automatically takes 1 of each of your stack of shafts and feathers, and
+; creates a single arrow. Setup is as such to prevent accidents when creating
+; arrows based on the wrong pile of shafts, as arrows are created in bulk.
+
+; Skillgain is smooth until about 90, use different wood colours for shafts
+; after that.
+
+gosub reset_backpack
+gosub open_bank
+set %bank_id #result
+
+gosub set_resource_container
+set %resource_container_id #result
+
+event SysMessage Opening resource container.
+nextcpos 600 300
+gosub open_container %resource_container_id
+
+start:
+
+;feathers
+finditem VLK
+gosub drag_from_stack #FINDID 1
+set %feather #LLIFTEDID
+
+;shafts
+finditem SLK
+gosub drag_from_stack #FINDID 1
+set %shaft #LLIFTEDID
+
+gosub craft_arrow %feather %shaft
+
+wait .5s
+
+goto start
+
+sub drag_from_stack
+    set %stack %1
+    event drag %stack
+    msg %2 $
+    click 450 350 P
+    wait 1
+return
+
+sub reset_backpack
+    event SysMessage Resetting backpack. Please don't move it while the script is running.
+    event macro 9 7
+    nextcpos 400 300
+    event macro 8 7
+    wait 1s
+return
+
+sub open_bank
+    event SysMessage Opening bank and grabbing its ID.
+    nextcpos 600 500
+    msg bank $
+    wait 1s
+return #CONTID
+
+sub set_resource_container
+    event SysMessage Please target the container in your bank holding the shafts and feathers.
+    set #TARGCURS 1
+    while #TARGCURS = 1
+      wait 2
+    return #LTARGETID
+
+sub craft_arrow
+    set #LTARGETID %1 ; Feather
+    set #LOBJECTID %2 ; Shaft
+    event macro 17 0
+    wait 20
+    event macro 22 0
+return
+
+sub open_container
+  set #LOBJECTID %1
+  while #CONTID <> %1
+  {
+    event macro 17
+    wait 20
+  }
+return
+
+sub raise
+    event SysMessage %1
+return
+

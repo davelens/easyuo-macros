@@ -1,0 +1,76 @@
+; Resisting Spells 1.0 for ZuluHotel Omega.
+;
+; 1. Stand in a house large enough to contain a Poison Field.
+; 2. Wear a piece of jewelry with poison protection so you don't die.
+; 3. Have enough reagants to cast a lot of Poison Field spells.
+; 4. Start the script.
+;
+; This casts a poison field and runs through it. Stops gaining at about 60.0.
+
+set %original_x #CHARPOSX
+set %original_y #CHARPOSY
+
+set %up_x %original_x - 1
+set %up_y %original_y - 2
+
+set %down_x %up_x
+set %down_y %original_y + 5
+
+goto cast
+
+cast:
+set #ltargetx %original_x - 1
+set #ltargety %original_y
+gosub cast_poison_field
+gosub cast_poison_field
+
+set %loop 1
+while %loop < 34
+{
+  event PathFind %up_x %up_y 0 ; Run up
+  wait 12
+  event PathFind %down_x %down_y 0 ; Run down
+  wait 12
+  set %loop %loop + 1
+}
+
+event PathFind %original_x %original_y 0 ; Move to original position
+wait 3s
+
+if #MANA < 20
+   gosub meditation
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+sub journal_has ; %passage %start %end
+  for %i %journal_s %journal_e
+  {
+    scanjournal %i
+
+    if %1 in #JOURNAL
+      return #true
+  }
+  return #false
+
+sub cast_poison_field
+  event macro 15 38
+  wait 2s
+  event macro 22
+  wait 1s
+  return
+
+sub meditation
+{
+  event macro 13 46
+  gosub journal_has cannot_focus_your
+  if #RESULT = #true
+  {
+    gosub meditation
+  } else {
+    repeat
+    {
+      wait 20
+    }
+    until #MANA = #MAXMANA
+  }
+}

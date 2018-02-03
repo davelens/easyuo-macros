@@ -1,0 +1,50 @@
+; Item Identification 1.0 for ZuluHotel Omega.
+;
+; 1. Buy a trash can deed from the architect NPC.
+; 2. Go to a house you own or co-own.
+; 3. Have 2 tiles of room to the west to place the deed.
+; 4. Start the script.
+;
+; This identifies a trash can deed, places it in your house, and redeeds.
+; Works because the redeed generates a deed with a new internal object ID
+; in your pack.
+
+start:
+gosub id_deed
+wait 10
+gosub place_deed
+wait 10
+gosub redeed
+wait 20
+goto start
+
+
+sub id_deed
+  finditem TVH
+  set #LTARGETID #FINDID
+  event macro 13 3 ; Item ID
+  wait 20
+  event macro 22 0
+  return
+
+sub place_deed
+  set #LOBJECTID #LTARGETID
+  event macro 17 0 ; double click deed
+  wait 20
+  set #LTARGETX #CHARPOSX - 2
+  set #LTARGETY #CHARPOSY
+  set #LTARGETZ #CHARPOSZ
+  set #LTARGETKIND 3
+  event macro 22 0
+  return
+
+sub redeed
+  finditem BKF
+  set #LTARGETID #FINDID
+  set #LTARGETZ #CHARPOSZ
+  set #LTARGETKIND 1
+  wait 20
+  msg .redeed $
+  wait 20
+  event macro 22 0
+  return

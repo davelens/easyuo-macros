@@ -1,0 +1,68 @@
+; Magery 1.0 for ZuluHotel Omega
+;
+; 1. Have ample garlic, bloodmoss and ginseng in your bp to cast Resurrection.
+; 2. Start the script.
+;
+; This casts bless whenever you are below 130 int. Change the integer on
+; the first line below "start:" to set that threshold to your preferred value.
+;
+; It catches spell fizzles, and automatically halts the script whenever you are
+; out of reagents.
+
+start:
+
+if #INT < 130 && #MANA >= 9
+  gosub cast_bless
+
+if #MANA < 50
+  gosub meditate
+else
+  gosub cast_resurrection
+  gosub journal_has spell_fizzles
+  if #RESULT = #true
+  {
+    gosub cast_resurrection
+  }
+  else
+  {
+    wait 20
+  }
+
+goto start
+
+sub cast_bless
+  event macro 15 16
+  target 3s
+  event macro 23 0
+  return
+
+sub cast_resurrection
+{
+  gosub journal_has insufficient_reagents
+  if #RESULT = #true
+  {
+    halt
+  }
+
+  event macro 15 58
+  target 3s
+  event macro 23 0
+  return
+}
+
+sub meditate
+  event macro 13 46
+  while #MANA < #MAXMANA
+  {
+    wait 1
+  }
+
+sub journal_has ; %passage %start %end
+  for %i %journal_s %journal_e
+  {
+    scanjournal %i
+
+    if %1 in #journal
+      return #true
+  }
+  return #false
