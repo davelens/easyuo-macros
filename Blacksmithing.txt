@@ -1,0 +1,41 @@
+; Blacksmithing 0.1 for ZuluHotel Omega.
+;
+; 1. Have ample iron ingots in your backpack
+; 2. Go to a house you own or co-own.
+; 3. Have 2 tiles of room to the west to place the deed.
+; 4. Start the script.
+;
+; This raises your Blacksmithing from 90 onwards, crafting iron breastplates.
+; IMPORTANT: For now, this script depends on a Razor macro to handle the menu
+; responses (Just record one yourself). You could accomplish the same with
+; located clicks in EasyUO, but haven't had time to do this yet.
+
+finditem TLH ; Smithy's Hammer
+set %hammer #FINDID
+
+set #LOBJECTID %hammer
+event macro 17 0
+target 3s
+
+finditem ENK ; (Iron) Ingots
+set #LTARGETID #FINDID
+event macro 22 0
+
+gosub wait_for_gump
+key F9 ; Runs a Razor macro to handle the menu responses.
+click 60 60 r
+wait 7s
+
+; TODO: Fix autosmelt after craft
+;finditem TBG ; Tongs, for smelting
+;target 3s
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+sub wait_for_gump
+{
+  while #CONTSIZEX <> 296
+  {
+    wait 1
+  }
+  return
+}
