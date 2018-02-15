@@ -1,0 +1,76 @@
+; Fishing + Tracking 1.0 for ZuluHotel Omega.
+;
+; 1. Stand on docks with ample water in a small radius around you (+/- 4 tiles).
+; 2. Start the script
+;
+; This fishes in random spots around you, provided you are on docks. Ocllo Docks
+; will do just fine. After each fishing cast, it will attempt to do a tracking
+; loop.
+
+gosub setup
+goto macro
+
+macro:
+gosub loopit %x %y 1
+set %newx %x + 2
+set %newy %y
+gosub loopit %newx %newy 2
+set %newx %x - 2
+set %newy %y + 2
+gosub loopit %newx %newy 3
+set %newx %x - 2
+set %newy %y
+gosub loopit %newx %newy 4
+set %newx %x - 2
+set %newy %y - 2
+gosub loopit %newx %newy 5
+set %newx %x
+set %newy %y - 2
+gosub loopit %newx %newy 6
+set %newx %x + 2
+set %newy %y - 2
+gosub loopit %newx %newy 7
+; Feel free to add more locations
+goto macro
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+sub setup
+{
+  set %x #CHARPOSX
+  set %y #CHARPOSY
+  set %z #CHARPOSZ
+  return
+}
+
+sub loopit ; %x %y %cast_id
+{
+  event sysmessage %3 %1 %2 ; So you can see which cast gives issues.
+  gosub fish %1 %2
+  wait 90 ; Around 4.5s to catch the actual fish
+  gosub track
+  return
+}
+
+sub fish ; %x %y
+{
+  finditem XHF ; Fishing pole
+  set #LOBJECTID #FINDID
+  set #LTARGETX %1
+  set #LTARGETY %2
+  set #LTARGETZ -3 ; So we can fish on docks.
+  set #LTARGETKIND 3 ; So we can harvest a resource (in this case, water).
+  wait 20
+  event macro 17 0
+  target 3s
+  event macro 22 0
+  return
+}
+
+sub track
+{
+  event macro 13 38
+  wait 10
+  click 160 80 r ; Closes the Tracking gump.
+  return
+}
