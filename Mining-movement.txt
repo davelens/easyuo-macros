@@ -1,0 +1,43 @@
+; Mining movement failsafe 1.0 for ZuluHotel Omega.
+;
+; Reads your journal and picks up when your current location holds no more ore.
+; Moves 8 spaces either north or south depending on where you are.
+; I use this in conjunction with a Razor macro to actually mine.
+; IMPORTANT: Assumes your position as a starting point, and works from there.
+
+set %original_x #CHARPOSX
+set %original_y #CHARPOSY
+
+north:
+gosub journal_has no_ore_left
+if #RESULT = #TRUE
+{
+  set %dest_x %original_x - 8
+  move %dest_x %original_y 0 ; Move south
+  wait 10s
+  goto south
+}
+goto north
+
+south:
+gosub journal_has no_ore_left
+if #RESULT = #TRUE
+{
+  set %dest_x %original_x
+  move %dest_x %original_y 0 ; Move north
+  wait 10s
+  goto north
+}
+goto south
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+sub journal_has ; %passage %start %end
+  for %i %journal_s %journal_e
+  {
+    scanjournal %i
+
+    if %1 in #JOURNAL
+      return #TRUE
+  }
+  return #FALSE
