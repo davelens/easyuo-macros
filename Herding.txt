@@ -1,0 +1,36 @@
+; Herding 1.0 for ZuluHotel Omega.
+;
+; 1. Have a Shepherd's Crook in your backpack.
+; 2. Lock yourself in a small space with a creature you can herd (and gain from).
+; 3. Start the macro.
+; 4. When asked, target the creature to herd
+;
+; Herds a creature to come to your location. That's it.
+
+event sysmessage Please target the creature to herd.
+set #TARGCURS 1
+while #TARGCURS = 1
+{
+  wait 2
+}
+
+goto start
+
+start:
+event sysmessage Commencing herding.
+gosub herd
+goto start
+
+;;;;;;;;;;;;;;;;;;;;;;
+sub herd
+{
+  finditem RPF ; Shepherd's Crook
+    set #LOBJECTID #FINDID
+    event macro 17 0 ; Active crook with Last Object
+    target 3s
+    event macro 22 0 ; Target the creature with Last Target
+    target 3s
+    event macro 23 0 ; Target Self because we want the creature to come to us.
+    wait 10s
+  return
+}
