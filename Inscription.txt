@@ -1,0 +1,119 @@
+; Inscription 1.0 for ZuluHotel Omega.
+;
+; 1. Have ample blank scrolls in your pack.
+; 2. Have some Bless+Cunning reags in your pack.
+; 3. Set .autoloop to whatever you can handle whilst fully blessed. Autoloop
+;    is actually faster for this skill.
+; 4. Start the macro. Target the book to scribe from.
+; 5. HOVER of the spell you which to scribe. Do NOT click the spell! The script
+;    will start within 5s.
+;
+; Asks you from which book to scribe, and which spell. Will cast Bless and
+; Cunning, and meditate when needed.
+;
+; IMPORTANT #1: There is NO check to see if you have ample reagents for
+; bless/cunning. If you don't want to be blessed, adjust the script accordingly.
+;
+; IMPORTANT #2: If your script hangs, it's probably due to the #INT and #MANA
+; values in the script not being optimized for the spell you scribe and/or your
+; int level. You can adjust those values as you see fit.
+
+gosub setup
+goto inscription
+
+inscription:
+event sysmessage Attempting to restart Inscription macro
+
+if #INT < 175 && #MANA >= 6
+{
+  wait 2s
+  gosub cast_cunning
+}
+
+if #INT < 190 && #MANA >= 9
+{
+  wait 2s
+  gosub cast_bless
+}
+
+if #MANA < 50
+{
+   event sysmessage Starting meditation shortly...
+   wait 2s
+   gosub meditate
+   goto inscription
+}
+
+gosub scribe
+wait 5s
+goto inscription
+
+sub setup
+{
+  event SysMessage Please target the book to scribe from.
+
+  set #TARGCURS 1
+  while #TARGCURS = 1
+    wait 2
+
+  ; AZF = ebook, RNV = holybook, HTK = nbook
+  set %book #LTARGETID
+  return
+}
+
+sub scribe
+{
+  finditem MMF
+  set #LTARGETID #FINDID
+  event macro 13 23
+  target 3s
+  event macro 22 0
+  set #LTARGETID %book
+  target 3s
+  event macro 22 0
+  wait 20
+  gosub target_spell
+
+  click %spell_x %spell_y
+  wait 20
+  return
+}
+
+sub target_spell
+{
+  while %spell_x = N/A
+  {
+    event SysMessage Please hover over the spell to scribe.
+    wait 5s
+    set %spell_x #CURSORX
+    set %spell_y #CURSORY
+    return
+  }
+  return
+}
+
+sub meditate
+{
+  event macro 13 46
+  while #MANA < #MAXMANA
+  {
+    wait 1
+  }
+  return
+}
+
+sub cast_bless
+{
+  event macro 15 16
+  target 3s
+  event macro 23 0
+  return
+}
+
+sub cast_cunning
+{
+  event macro 15 9
+  target 3s
+  event macro 23 0
+  return
+}
