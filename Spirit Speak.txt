@@ -1,0 +1,70 @@
+; Spirit Speak 1.0 for ZuluHotel Omega.
+;
+; 1. Have ample reags to cast Dispel in your backpack.
+; 2. Go to a safe place, and start the macro.
+; 3. Have 2 tiles of room to the west to place the deed.
+; 4. Start the script.
+;
+; Raises your Spirit Speak to 130, provided you can cast Dispel.
+; IMPORTANT: This script currently has no fallback for failed meditations.
+; You can use the Meditation-failsafe.txt macro instead and run that alongside
+; this one. This is not necessary if your meditation is high enough (115+)
+
+
+start:
+if #MANA < 20
+{
+  gosub meditate
+}
+gosub ss
+goto start
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+sub ss
+{
+  event macro 13 32
+  wait 20
+
+  gosub journal_has contact_the
+  if #RESULT = #true
+    gosub cast_dispel
+
+  gosub journal_has already_performing
+  if #RESULT = #true
+    gosub cast_dispel
+
+  gosub journal_has already_in_contact
+  if #RESULT = #true
+    gosub cast_dispel
+
+  wait 9s
+}
+
+sub cast_dispel
+{
+  wait 20
+  event macro 15 40
+  target 3s
+  event macro 23 0
+  wait 7s
+  goto start
+}
+
+sub meditate
+  event macro 13 46
+  while #MANA < #MAXMANA
+  {
+    wait 1
+  }
+
+sub journal_has ; %passage %start %end
+  for %i %journal_s %journal_e
+  {
+    scanjournal %i
+
+    if %1 in #journal
+      return #true
+  }
+  return #false
