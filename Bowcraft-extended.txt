@@ -1,4 +1,4 @@
-; Bowcraft 1.0 for ZuluHotel Omega
+; Bowcraft 1.1 for ZuluHotel Omega
 ;
 ; 1. Make sure you have a separate bag containing a lot of shafts and feathers
 ;    in your bank.
@@ -13,12 +13,15 @@
 ; after that.
 
 gosub reset_backpack
-gosub open_bank
-set %bank_id #result
+
+gosub set_main_container
+set %main_container_id #result
+event SysMessage Opening main container.
+nextcpos 600 500
+gosub open_container %main_container_id
 
 gosub set_resource_container
 set %resource_container_id #result
-
 event SysMessage Opening resource container.
 nextcpos 600 300
 gosub open_container %resource_container_id
@@ -26,12 +29,12 @@ gosub open_container %resource_container_id
 start:
 
 ;feathers
-finditem VLK
+finditem VLK C_, %resource_container_id ; Only fetch feathers from resource container.
 gosub drag_from_stack #FINDID 1
 set %feather #LLIFTEDID
 
 ;shafts
-finditem SLK
+finditem SLK C_, %resource_container_id ; Only fetch shafts from resource container.
 gosub drag_from_stack #FINDID 1
 set %shaft #LLIFTEDID
 
@@ -42,53 +45,76 @@ wait .5s
 goto start
 
 sub drag_from_stack
-    set %stack %1
-    event drag %stack
-    msg %2 $
-    click 450 350 P
-    wait 1
-return
+{
+  set %stack %1
+  event drag %stack
+  wait 2
+  msg %2 $
+  click 450 350 P
+  wait 2
+  return
+}
 
 sub reset_backpack
-    event SysMessage Resetting backpack. Please don't move it while the script is running.
-    event macro 9 7
-    nextcpos 400 300
-    event macro 8 7
-    wait 1s
-return
+{
+  event SysMessage Resetting backpack. Please don't move it while the script is running.
+  event macro 9 7
+  nextcpos 400 300
+  event macro 8 7
+  wait 1s
+  return
+}
 
+; No longer used, but leaving it here for now.
 sub open_bank
-    event SysMessage Opening bank and grabbing its ID.
-    nextcpos 600 500
-    msg bank $
-    wait 1s
-return #CONTID
+{
+  event SysMessage Opening bank and grabbing its ID.
+  nextcpos 600 500
+  msg bank $
+  wait 1s
+  return #CONTID
+}
+
+sub set_main_container
+{
+  event SysMessage Please target the container with the resource bag containing shafts and feathers.
+  set #TARGCURS 1
+  while #TARGCURS = 1
+    wait 2
+  return #LTARGETID
+}
 
 sub set_resource_container
-    event SysMessage Please target the container in your bank holding the shafts and feathers.
-    set #TARGCURS 1
-    while #TARGCURS = 1
-      wait 2
-    return #LTARGETID
+{
+  event SysMessage Please target the resource bag containing the shafts and feathers.
+  set #TARGCURS 1
+  while #TARGCURS = 1
+    wait 2
+  return #LTARGETID
+}
 
 sub craft_arrow
-    set #LTARGETID %1 ; Feather
-    set #LOBJECTID %2 ; Shaft
-    event macro 17 0
-    wait 20
-    event macro 22 0
-return
+{
+  set #LOBJECTID %2 ; Shaft
+  wait 10
+  event macro 17 0
+  target 3s
+  set #LTARGETID %1 ; Feather
+  event macro 22 0
+  while #CONTSIZEX <> 296 ; The size of the Bowcraft gump.
+  {
+    wait 1
+  }
+  return
+}
 
 sub open_container
+{
   set #LOBJECTID %1
   while #CONTID <> %1
   {
-    event macro 17
+    event macro 17 0
     wait 20
   }
-return
-
-sub raise
-    event SysMessage %1
-return
-
+  return
+}
