@@ -1,0 +1,10 @@
+; Tracking 1.0 for ZuluHotel Omega.
+;
+; Nothing in particular is required to run this, just start the script.
+; Runs a Tracking loop, and closes the gump by right clicking it.
+
+start:
+event macro 13 38
+click 160 80 r ; Closes the Tracking gump
+wait 5s
+goto start
